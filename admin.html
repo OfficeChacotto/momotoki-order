@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>百時 注文管理</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f5f5f5;color:#333;font-size:15px}
+header{background:#4a3728;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+header h1{font-size:18px;font-weight:bold}
+#btn-reload{background:#fff;color:#4a3728;border:none;border-radius:6px;padding:8px 14px;font-size:14px;font-weight:bold;cursor:pointer}
+#btn-reload:active{background:#eee}
+
+.summary{background:#4a3728;color:#fff;padding:12px 16px;display:flex;gap:16px;flex-wrap:wrap}
+.sum-box{flex:1;min-width:140px;background:rgba(255,255,255,.12);border-radius:6px;padding:10px 14px}
+.sum-label{font-size:11px;opacity:.8;margin-bottom:4px}
+.sum-value{font-size:20px;font-weight:bold}
+.sum-sub{font-size:12px;opacity:.7;margin-top:2px}
+
+.filter-bar{display:flex;gap:8px;padding:12px 16px;background:#fff;border-bottom:1px solid #ddd;overflow-x:auto}
+.filter-btn{padding:7px 16px;border:1px solid #ccc;border-radius:20px;background:#fff;font-size:14px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.filter-btn.active{background:#4a3728;color:#fff;border-color:#4a3728}
+
+.table-wrap{overflow-x:auto;padding:12px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:700px}
+th{background:#4a3728;color:#fff;padding:10px 12px;text-align:left;font-size:13px;font-weight:normal;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr.paid td{background:#f9f9f9;color:#aaa}
+tr.paid .order-items{color:#bbb}
+
+.order-name{font-weight:bold;font-size:15px}
+.libe-link{color:#4a3728;font-size:12px;word-break:break-all}
+.order-items{font-size:13px;line-height:1.8;white-space:pre-wrap;color:#555}
+.order-total{font-weight:bold;white-space:nowrap}
+.order-time{font-size:12px;color:#888;white-space:nowrap}
+.paid-btn{
+  padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:bold;
+  white-space:nowrap;-webkit-tap-highlight-color:transparent;min-width:110px
+}
+.paid-btn.unpaid{background:#fff3cd;color:#856404;border:1px solid #ffc107}
+.paid-btn.paid{background:#d4edda;color:#155724;border:1px solid #28a745}
+.paid-btn:active{opacity:.8}
+
+#loading{text-align:center;padding:40px;color:#888}
+#empty{text-align:center;padding:40px;color:#888;display:none}
+.updated-badge{font-size:11px;color:#888;display:block;margin-top:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>百時 注文管理</h1>
+  <button id="btn-reload" onclick="loadOrders()">↻ 更新</button>
+</header>
+
+<div class="summary">
+  <div class="sum-box">
+    <div class="sum-label">未払い / 全注文</div>
+    <div class="sum-value" id="sum-count">— / —</div>
+    <div class="sum-sub">人</div>
+  </div>
+  <div class="sum-box">
+    <div class="sum-label">未払い合計 / 全体合計</div>
+    <div class="sum-value" id="sum-amount">¥— / ¥—</div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="setFilter('all',this)">全員</button>
+  <button class="filter-btn" onclick="setFilter('unpaid',this)">未払いのみ</button>
+  <button class="filter-btn" onclick="setFilter('paid',this)">支払い済みのみ</button>
+</div>
+
+<div class="table-wrap">
+  <div id="loading">読み込み中...</div>
+  <div id="empty">注文がありません</div>
+  <table id="orders-table" style="display:none">
+    <thead>
+      <tr>
+        <th>名前</th>
+        <th>リベURL</th>
+        <th>注文内容</th>
+        <th>合計</th>
+        <th>注文日時</th>
+        <th>支払い</th>
+      </tr>
+    </thead>
+    <tbody id="orders-body"></tbody>
+  </table>
+</div>
+
+<script>
+let allOrders = [];
+let currentFilter = 'all';
+
+let sb;
+try {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch(e) {
+  console.error('Supabase init error', e);
+}
+
+async function loadOrders() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('orders-table').style.display = 'none';
+  document.getElementById('empty').style.display = 'none';
+  document.getElementById('btn-reload').textContent = '読込中...';
+
+  try {
+    const {data, error} = await sb.from('orders').select('*').order('ordered_at', {ascending: false});
+    if (error) throw error;
+    allOrders = data || [];
+    renderAll();
+  } catch(e) {
+    alert('データの取得に失敗しました。\n' + (e.message || e));
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btn-reload').textContent = '↻ 更新';
+  }
+}
+
+function renderAll() {
+  updateSummary();
+  renderTable();
+}
+
+function updateSummary() {
+  const unpaid = allOrders.filter(o => !o.is_paid);
+  const totalCount = allOrders.length;
+  const unpaidCount = unpaid.length;
+  const totalAmount = allOrders.reduce((s, o) => s + o.total_price, 0);
+  const unpaidAmount = unpaid.reduce((s, o) => s + o.total_price, 0);
+  document.getElementById('sum-count').textContent = `${unpaidCount} / ${totalCount}`;
+  document.getElementById('sum-amount').textContent =
+    `¥${unpaidAmount.toLocaleString()} / ¥${totalAmount.toLocaleString()}`;
+}
+
+function renderTable() {
+  let orders = allOrders;
+  if (currentFilter === 'unpaid') orders = orders.filter(o => !o.is_paid);
+  if (currentFilter === 'paid')   orders = orders.filter(o => o.is_paid);
+
+  const tbody = document.getElementById('orders-body');
+  tbody.innerHTML = '';
+
+  if (orders.length === 0) {
+    document.getElementById('orders-table').style.display = 'none';
+    document.getElementById('empty').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('orders-table').style.display = 'table';
+  document.getElementById('empty').style.display = 'none';
+
+  orders.forEach(order => {
+    const tr = document.createElement('tr');
+    if (order.is_paid) tr.classList.add('paid');
+
+    const itemsText = order.items.map(i => `${i.name} ×${i.qty}`).join('\n');
+    const orderedAt = fmtDate(order.ordered_at);
+    const updatedAt = order.updated_at !== order.ordered_at ? fmtDate(order.updated_at) : null;
+    const paidAt = order.paid_at ? fmtDate(order.paid_at) : null;
+
+    const libeCell = order.libecity_url
+      ? `<a class="libe-link" href="${escHtml(order.libecity_url)}" target="_blank">${escHtml(order.libecity_url)}</a>`
+      : '<span style="color:#bbb;font-size:12px">未入力</span>';
+
+    const paidLabel = order.is_paid
+      ? `✅ 支払い済み${paidAt ? '<br><span style="font-size:11px;color:#888">' + paidAt + '</span>' : ''}`
+      : '⬜ 未払い';
+    const paidClass = order.is_paid ? 'paid' : 'unpaid';
+
+    tr.innerHTML = `
+      <td>
+        <div class="order-name">${escHtml(order.name)}</div>
+        ${order.memo ? `<div style="font-size:12px;color:#888;margin-top:4px">📝 ${escHtml(order.memo)}</div>` : ''}
+      </td>
+      <td>${libeCell}</td>
+      <td><div class="order-items">${escHtml(itemsText)}</div></td>
+      <td class="order-total">¥${order.total_price.toLocaleString()}</td>
+      <td class="order-time">
+        ${orderedAt}
+        ${updatedAt ? `<span class="updated-badge">更新: ${updatedAt}</span>` : ''}
+      </td>
+      <td>
+        <button class="paid-btn ${paidClass}" onclick="togglePaid('${order.id}')">
+          ${paidLabel}
+        </button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function togglePaid(id) {
+  const order = allOrders.find(o => o.id === id);
+  if (!order) return;
+  const newPaid = !order.is_paid;
+  const update = {is_paid: newPaid, paid_at: newPaid ? new Date().toISOString() : null};
+
+  try {
+    const {error} = await sb.from('orders').update(update).eq('id', id);
+    if (error) throw error;
+    Object.assign(order, update);
+    renderAll();
+  } catch(e) {
+    alert('更新に失敗しました。\n' + (e.message || e));
+  }
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${mm}/${dd} ${hh}:${mi}`;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+loadOrders();
+</script>
+</body>
+</html>

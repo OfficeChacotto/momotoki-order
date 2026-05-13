@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>古民家cafe 百時 ご注文</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#faf8f5;color:#333;font-size:16px}
+header{background:#4a3728;color:#fff;padding:16px;text-align:center}
+header h1{font-size:20px;font-weight:bold;letter-spacing:2px}
+header p{font-size:12px;margin-top:4px;opacity:.8}
+.section{padding:16px}
+.card{background:#fff;border-radius:8px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px;color:#555}
+input[type=text],input[type=url],textarea{
+  width:100%;border:1px solid #ccc;border-radius:6px;padding:10px 12px;
+  font-size:16px;outline:none;transition:border .2s
+}
+input[type=text]:focus,input[type=url]:focus,textarea:focus{border-color:#4a3728}
+.field{margin-bottom:14px}
+.category-title{
+  font-size:13px;font-weight:bold;color:#4a3728;
+  border-bottom:2px solid #4a3728;padding-bottom:4px;margin-bottom:10px;margin-top:18px
+}
+.menu-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid #eee
+}
+.menu-item:last-child{border-bottom:none}
+.menu-info{flex:1}
+.menu-name{font-size:15px}
+.menu-price{font-size:13px;color:#777;margin-top:2px}
+.qty-ctrl{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.qty-btn{
+  width:36px;height:36px;border:none;border-radius:50%;
+  font-size:20px;line-height:1;cursor:pointer;
+  background:#e8e0d8;color:#4a3728;font-weight:bold;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent
+}
+.qty-btn:active{background:#c8b8a8}
+.qty-num{min-width:24px;text-align:center;font-size:16px;font-weight:bold}
+.menu-item.selected .menu-name{color:#4a3728;font-weight:bold}
+.menu-item.selected{background:#fdf5ec;margin:0 -16px;padding:10px 16px;border-radius:4px}
+
+/* sticky footer */
+#order-footer{
+  position:sticky;bottom:0;background:#fff;
+  border-top:2px solid #4a3728;padding:12px 16px;
+  box-shadow:0 -2px 8px rgba(0,0,0,.1)
+}
+#footer-summary{font-size:13px;color:#555;margin-bottom:6px;min-height:20px}
+#footer-total{font-size:22px;font-weight:bold;color:#4a3728;margin-bottom:10px}
+#btn-order{
+  width:100%;padding:14px;background:#4a3728;color:#fff;
+  border:none;border-radius:8px;font-size:18px;font-weight:bold;
+  cursor:pointer;-webkit-tap-highlight-color:transparent
+}
+#btn-order:active{background:#2e2018}
+#btn-order:disabled{background:#aaa;cursor:not-allowed}
+
+/* 完了画面 */
+#done-screen{display:none;padding:24px 16px;max-width:600px;margin:0 auto}
+#done-screen h2{font-size:20px;color:#4a3728;margin-bottom:16px;text-align:center}
+.done-card{background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px}
+.done-card h3{font-size:14px;color:#777;margin-bottom:8px}
+.done-item-row{display:flex;justify-content:space-between;padding:4px 0;font-size:15px}
+.done-total{font-size:20px;font-weight:bold;color:#4a3728;text-align:right;margin-top:8px;padding-top:8px;border-top:1px solid #eee}
+.done-time{font-size:12px;color:#999;text-align:center;margin-bottom:16px}
+#btn-edit{
+  width:100%;padding:14px;background:#fff;color:#4a3728;
+  border:2px solid #4a3728;border-radius:8px;font-size:16px;font-weight:bold;
+  cursor:pointer;margin-bottom:12px
+}
+#btn-new{
+  width:100%;padding:12px;background:#eee;color:#555;
+  border:none;border-radius:8px;font-size:14px;cursor:pointer
+}
+
+/* 注文画面 */
+#order-screen{max-width:600px;margin:0 auto}
+.memo-area{padding:0 16px 100px}
+
+@media(min-width:600px){
+  #order-footer{max-width:600px;left:50%;transform:translateX(-50%);border-radius:8px 8px 0 0}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>古民家cafe 百時</h1>
+  <p>ご注文フォーム</p>
+</header>
+
+<!-- 注文画面 -->
+<div id="order-screen">
+  <div class="section">
+    <div class="card">
+      <div class="field">
+        <label for="name">お名前 <span style="color:#c0392b">*</span></label>
+        <input type="text" id="name" placeholder="山田 太郎" autocomplete="name">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="libecity_url">リベシティ プロフィールURL（任意）</label>
+        <input type="url" id="libecity_url" placeholder="https://libecity.com/user_profile/...">
+      </div>
+    </div>
+
+    <div id="menu-area"></div>
+
+    <div class="memo-area" style="padding:0 0 100px">
+      <div class="card" style="margin-top:12px">
+        <label for="memo">備考（アレルギー等）</label>
+        <textarea id="memo" rows="3" placeholder="ご要望があればご記入ください" style="resize:vertical"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- スティッキーフッター -->
+<div id="order-footer">
+  <div id="footer-summary">商品を選択してください</div>
+  <div id="footer-total">合計 ¥0</div>
+  <button id="btn-order" onclick="submitOrder()">注文する</button>
+</div>
+
+<!-- 完了画面 -->
+<div id="done-screen">
+  <h2>ご注文ありがとうございます！</h2>
+  <p class="done-time" id="done-time"></p>
+  <div class="done-card">
+    <h3>注文者</h3>
+    <div id="done-name" style="font-size:16px;font-weight:bold"></div>
+    <div id="done-url" style="font-size:13px;color:#777;margin-top:4px"></div>
+  </div>
+  <div class="done-card">
+    <h3>注文内容</h3>
+    <div id="done-items"></div>
+    <div class="done-total" id="done-total"></div>
+  </div>
+  <div class="done-card" id="done-memo-card" style="display:none">
+    <h3>備考</h3>
+    <div id="done-memo" style="font-size:15px"></div>
+  </div>
+  <button id="btn-edit" onclick="editOrder()">注文を変更する</button>
+  <button id="btn-new" onclick="newOrder()">別の注文をする（新規）</button>
+</div>
+
+<script>
+const MENU = [
+  {id:"cheesecake",    category:"フード",   name:"チーズケーキ",                          price:550},
+  {id:"blend_light",   category:"珈琲",     name:"ブレンドコーヒー（浅煎り）",            price:500},
+  {id:"blend_dark",    category:"珈琲",     name:"マイルドブレンド（深煎り）",            price:500},
+  {id:"ice_coffee",    category:"珈琲",     name:"アイスコーヒー",                        price:500},
+  {id:"decaf",         category:"珈琲",     name:"デカフェ（カフェインレス）",            price:550},
+  {id:"cafe_ole_hot",  category:"珈琲",     name:"カフェオレ（ホット）",                  price:540},
+  {id:"cafe_ole_ice",  category:"珈琲",     name:"カフェオレ（アイス）",                  price:540},
+  {id:"straight_hot",  category:"紅茶",     name:"ストレートティー（ホット）",            price:500},
+  {id:"straight_ice",  category:"紅茶",     name:"ストレートティー（アイス）",            price:500},
+  {id:"milk_tea_hot",  category:"紅茶",     name:"ミルクティー（ホット）",                price:500},
+  {id:"herb_blend",    category:"ハーブ",   name:"ブレンドハーブティー",                  price:700},
+  {id:"taneya",        category:"ハーブ",   name:"たねやブレンド",                        price:700},
+  {id:"lavender",      category:"ハーブ",   name:"ラベンダー＆レモンバーベナ",            price:700},
+  {id:"rosemary",      category:"ハーブ",   name:"ローズマリー＆スペアミント＆ジンジャー",price:700},
+  {id:"apple_juice",   category:"ジュース", name:"100%りんごジュース",                    price:500},
+  {id:"mango_juice",   category:"ジュース", name:"100%マンゴージュース",                  price:500},
+  {id:"yuzu_hot",      category:"ジュース", name:"柚子茶（ホット）",                      price:600},
+  {id:"yuzu_ice",      category:"ジュース", name:"柚子茶（アイス）",                      price:600},
+  {id:"lemonade_hot",  category:"ジュース", name:"国産檸檬のレモネード（ホット）",        price:550},
+  {id:"lemonade_soda", category:"ジュース", name:"国産檸檬のレモネード（ソーダ）",        price:600},
+  {id:"enzyme_hot",    category:"ジュース", name:"国産愛媛の酵素ドリンク（ホット）",      price:550},
+  {id:"enzyme_soda",   category:"ジュース", name:"国産愛媛の酵素ドリンク（ソーダ）",      price:600},
+  {id:"yukiko_lemon",  category:"ジュース", name:"ゆきこ檸檬ジュース（ソーダ）",          price:600},
+  {id:"soy_ole_hot",   category:"その他",   name:"豆乳オレ（ホット）",                    price:540},
+  {id:"soy_ole_ice",   category:"その他",   name:"豆乳オレ（アイス）",                    price:540},
+];
+
+const CATEGORIES = ["フード","珈琲","紅茶","ハーブ","ジュース","その他"];
+
+// 数量マップ
+const qty = {};
+MENU.forEach(m => qty[m.id] = 0);
+
+// Supabase クライアント
+let sb;
+try {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch(e) {
+  console.error('Supabase init error', e);
+}
+
+// 編集中の注文ID
+let editingOrderId = null;
+
+// メニューDOM構築
+function buildMenu() {
+  const area = document.getElementById('menu-area');
+  CATEGORIES.forEach(cat => {
+    const items = MENU.filter(m => m.category === cat);
+    if (!items.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'card';
+    sec.innerHTML = `<div class="category-title">${cat}</div>`;
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'menu-item';
+      row.id = 'row-' + item.id;
+      row.innerHTML = `
+        <div class="menu-info">
+          <div class="menu-name">${item.name}</div>
+          <div class="menu-price">¥${item.price.toLocaleString()}</div>
+        </div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('${item.id}',-1)" aria-label="減らす">−</button>
+          <span class="qty-num" id="qty-${item.id}">0</span>
+          <button class="qty-btn" onclick="changeQty('${item.id}',1)" aria-label="増やす">＋</button>
+        </div>`;
+      sec.appendChild(row);
+    });
+    area.appendChild(sec);
+  });
+}
+
+function changeQty(id, delta) {
+  qty[id] = Math.max(0, qty[id] + delta);
+  document.getElementById('qty-' + id).textContent = qty[id];
+  const row = document.getElementById('row-' + id);
+  row.classList.toggle('selected', qty[id] > 0);
+  updateFooter();
+}
+
+function updateFooter() {
+  const selected = MENU.filter(m => qty[m.id] > 0);
+  const total = selected.reduce((s, m) => s + m.price * qty[m.id], 0);
+  const summaryEl = document.getElementById('footer-summary');
+  if (selected.length === 0) {
+    summaryEl.textContent = '商品を選択してください';
+  } else {
+    summaryEl.textContent = selected.map(m => `${m.name} ×${qty[m.id]}`).join('　');
+  }
+  document.getElementById('footer-total').textContent = `合計 ¥${total.toLocaleString()}`;
+}
+
+function getOrderItems() {
+  return MENU.filter(m => qty[m.id] > 0).map(m => ({
+    id: m.id, name: m.name, price: m.price, qty: qty[m.id]
+  }));
+}
+
+function getTotalPrice() {
+  return MENU.reduce((s, m) => s + m.price * qty[m.id], 0);
+}
+
+async function submitOrder() {
+  const name = document.getElementById('name').value.trim();
+  const libecity_url = document.getElementById('libecity_url').value.trim();
+  const memo = document.getElementById('memo').value.trim();
+  const items = getOrderItems();
+  const total_price = getTotalPrice();
+
+  if (!name) { alert('お名前を入力してください。'); return; }
+  if (items.length === 0) { alert('商品を1点以上選択してください。'); return; }
+
+  const btn = document.getElementById('btn-order');
+  btn.disabled = true;
+  btn.textContent = '送信中...';
+
+  try {
+    let result;
+    if (editingOrderId) {
+      // UPDATE
+      const {data, error} = await sb.from('orders').update({
+        name, libecity_url, items, total_price, memo
+      }).eq('id', editingOrderId).select().single();
+      if (error) throw error;
+      result = data;
+    } else {
+      // INSERT
+      const {data, error} = await sb.from('orders').insert({
+        name, libecity_url, items, total_price, memo
+      }).select().single();
+      if (error) throw error;
+      result = data;
+      localStorage.setItem('order_id', result.id);
+    }
+    showDone(result);
+  } catch(e) {
+    alert('送信に失敗しました。\n' + (e.message || e));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '注文する';
+  }
+}
+
+function showDone(order) {
+  document.getElementById('order-screen').style.display = 'none';
+  document.getElementById('order-footer').style.display = 'none';
+  const done = document.getElementById('done-screen');
+  done.style.display = 'block';
+
+  const at = new Date(order.updated_at || order.ordered_at);
+  document.getElementById('done-time').textContent =
+    `注文日時: ${at.toLocaleDateString('ja-JP')} ${at.toLocaleTimeString('ja-JP')}`;
+
+  document.getElementById('done-name').textContent = order.name;
+  const urlEl = document.getElementById('done-url');
+  if (order.libecity_url) {
+    urlEl.innerHTML = `<a href="${escHtml(order.libecity_url)}" target="_blank" style="color:#4a3728">${escHtml(order.libecity_url)}</a>`;
+  } else {
+    urlEl.textContent = '';
+  }
+
+  const itemsEl = document.getElementById('done-items');
+  itemsEl.innerHTML = '';
+  order.items.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'done-item-row';
+    row.innerHTML = `<span>${escHtml(item.name)} ×${item.qty}</span><span>¥${(item.price*item.qty).toLocaleString()}</span>`;
+    itemsEl.appendChild(row);
+  });
+  document.getElementById('done-total').textContent = `合計 ¥${order.total_price.toLocaleString()}`;
+
+  const memoCard = document.getElementById('done-memo-card');
+  if (order.memo) {
+    document.getElementById('done-memo').textContent = order.memo;
+    memoCard.style.display = 'block';
+  } else {
+    memoCard.style.display = 'none';
+  }
+
+  editingOrderId = order.id;
+  localStorage.setItem('order_id', order.id);
+}
+
+function editOrder() {
+  document.getElementById('done-screen').style.display = 'none';
+  document.getElementById('order-screen').style.display = 'block';
+  document.getElementById('order-footer').style.display = 'block';
+  document.getElementById('btn-order').textContent = '注文を変更する';
+  window.scrollTo(0, 0);
+}
+
+function newOrder() {
+  if (!confirm('新しい注文を作成します。現在の注文とは別の注文になります。よろしいですか？')) return;
+  editingOrderId = null;
+  localStorage.removeItem('order_id');
+  MENU.forEach(m => {
+    qty[m.id] = 0;
+    document.getElementById('qty-' + m.id).textContent = '0';
+    document.getElementById('row-' + m.id).classList.remove('selected');
+  });
+  document.getElementById('name').value = '';
+  document.getElementById('libecity_url').value = '';
+  document.getElementById('memo').value = '';
+  updateFooter();
+  document.getElementById('done-screen').style.display = 'none';
+  document.getElementById('order-screen').style.display = 'block';
+  document.getElementById('order-footer').style.display = 'block';
+  document.getElementById('btn-order').textContent = '注文する';
+  window.scrollTo(0, 0);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function restorePreviousOrder() {
+  const savedId = localStorage.getItem('order_id');
+  if (!savedId || !sb) return;
+  try {
+    const {data, error} = await sb.from('orders').select('*').eq('id', savedId).single();
+    if (error || !data) return;
+    // フォームを復元
+    document.getElementById('name').value = data.name || '';
+    document.getElementById('libecity_url').value = data.libecity_url || '';
+    document.getElementById('memo').value = data.memo || '';
+    data.items.forEach(item => {
+      if (qty.hasOwnProperty(item.id)) {
+        qty[item.id] = item.qty;
+        const qEl = document.getElementById('qty-' + item.id);
+        if (qEl) qEl.textContent = item.qty;
+        const rEl = document.getElementById('row-' + item.id);
+        if (rEl && item.qty > 0) rEl.classList.add('selected');
+      }
+    });
+    updateFooter();
+    editingOrderId = savedId;
+    document.getElementById('btn-order').textContent = '注文を変更する';
+
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:#fdf5ec;border:1px solid #c8a87a;padding:10px 16px;font-size:13px;color:#4a3728;text-align:center';
+    banner.innerHTML = '前回の注文を読み込みました。変更して「注文を変更する」を押してください。';
+    document.querySelector('header').insertAdjacentElement('afterend', banner);
+  } catch(e) {
+    // 失敗しても無視
+  }
+}
+
+buildMenu();
+restorePreviousOrder();
+</script>
+</body>
+</html>

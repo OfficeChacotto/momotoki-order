@@ -1,1 +1,1 @@
-supabase-config.js
+# Publishable key はブラウザ公開前提のため管理対象にする

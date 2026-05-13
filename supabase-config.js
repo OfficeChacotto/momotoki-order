@@ -1,2 +1,2 @@
 const SUPABASE_URL = 'https://yovyrxdtaewowxlktpod.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_NhXPVqu9rcUEwxR5s7kUCg_Rmsw7xuu';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvdnlyeGR0YWV3b3d4bGt0cG9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NjE4NTksImV4cCI6MjA5NDIzNzg1OX0.z2V89OritXh_WvuAg4Zcy66tpyl70d5-tr8DYgPH1qw';

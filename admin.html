@@ -121,7 +121,6 @@ tr.paid .order-items{color:#bbb}
     <thead>
       <tr>
         <th>名前 / 備考</th>
-        <th>リベURL</th>
         <th>注文内容</th>
         <th>合計</th>
         <th>日時</th>
@@ -274,9 +273,9 @@ function renderTable(){
     const tr=document.createElement('tr');
     if(order.is_paid)tr.classList.add('paid');
     const itemsText=order.items.map(i=>`${i.name} ×${i.qty}`).join('\n');
-    const libeCell=order.libecity_url
-      ?`<a class="libe-link" href="${esc(order.libecity_url)}" target="_blank">${esc(order.libecity_url)}</a>`
-      :'<span style="color:#bbb;font-size:12px">未入力</span>';
+    const nameDisplay=order.libecity_url
+      ?`<a class="order-name" href="${esc(order.libecity_url)}" target="_blank" style="color:#4a3728;text-decoration:none">${esc(order.name)} 🔗</a>`
+      :`<div class="order-name">${esc(order.name)}</div>`;
     const paidCls=order.is_paid?'paid-s':'unpaid';
     const paidLbl=order.is_paid
       ?`✅ 支払い済み${order.paid_at?'<br><span style="font-size:11px">'+fmtDate(order.paid_at)+'</span>':''}`
@@ -285,10 +284,9 @@ function renderTable(){
       ?`<span class="upd-badge">更新: ${fmtDate(order.updated_at)}</span>`:'';
     tr.innerHTML=`
       <td>
-        <div class="order-name">${esc(order.name)}</div>
+        ${nameDisplay}
         ${order.memo?`<div style="font-size:12px;color:#888;margin-top:3px">📝 ${esc(order.memo)}</div>`:''}
       </td>
-      <td>${libeCell}</td>
       <td><div class="order-items">${esc(itemsText)}</div></td>
       <td class="order-total">¥${order.total_price.toLocaleString()}</td>
       <td class="order-time">${fmtDate(order.ordered_at)}${updBadge}</td>

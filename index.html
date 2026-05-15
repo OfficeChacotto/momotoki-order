@@ -220,16 +220,19 @@ function updateCutoffBanner(){
 }
 function updateEditButton(){
   const btn=document.getElementById('btn-edit');
+  const btnNew=document.getElementById('btn-new');
   const note=document.getElementById('cutoff-note');
   if(!btn)return;
   if(isPastCutoff()){
     btn.disabled=true;
     btn.textContent='変更期限終了';
+    if(btnNew){btnNew.disabled=true;btnNew.style.opacity='.4';btnNew.style.cursor='not-allowed';}
     note.style.display='block';
-    note.textContent='変更期限が過ぎたため注文を変更できません';
+    note.textContent='変更期限が過ぎたため注文の変更・新規注文はできません';
   }else{
     btn.disabled=false;
     btn.textContent='✏️ 注文を変更する';
+    if(btnNew){btnNew.disabled=false;btnNew.style.opacity='';btnNew.style.cursor='';}
     note.style.display='none';
   }
 }
@@ -283,7 +286,7 @@ async function submitOrder(){
   const items=getItems();const total_price=getTotal();
   if(!name){alert('お名前を入力してください。');return;}
   if(!items.length){alert('商品を1点以上選択してください。');return;}
-  if(isEditing&&isPastCutoff()){alert('変更期限が過ぎているため変更できません。');return;}
+  if(isPastCutoff()){alert('変更期限が過ぎているため注文の変更・新規注文はできません。');return;}
 
   const btn=document.getElementById('btn-order');
   btn.disabled=true;btn.textContent='送信中...';
@@ -394,6 +397,7 @@ function startEdit(){
   showFormScreen();
 }
 function newOrder(){
+  if(isPastCutoff()){alert('変更期限が過ぎているため新規注文はできません。');return;}
   if(!confirm('新しい注文を作成します。現在の注文とは別の注文になります。よろしいですか？'))return;
   myOrderId=null;myOrderData=null;isEditing=false;
   localStorage.removeItem('order_id');

@@ -39,7 +39,7 @@ input:focus,textarea:focus{border-color:#4a3728}
 .qty-num{min-width:24px;text-align:center;font-size:16px;font-weight:bold}
 .menu-item.selected .menu-name{color:#4a3728;font-weight:bold}
 .menu-item.selected{background:#fdf5ec;margin:0 -16px;padding:10px 16px;border-radius:4px}
-.memo-pad{padding:0 0 110px}
+.form-bottom-pad{padding:0 0 110px}
 
 /* スティッキーフッター */
 #order-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #4a3728;padding:12px 16px;box-shadow:0 -2px 8px rgba(0,0,0,.1)}
@@ -61,7 +61,6 @@ input:focus,textarea:focus{border-color:#4a3728}
 .my-url{font-size:12px;color:#777;margin-bottom:12px;word-break:break-all}
 .my-item-row{display:flex;justify-content:space-between;padding:4px 0;font-size:15px}
 .my-total{font-size:20px;font-weight:bold;color:#4a3728;text-align:right;margin-top:10px;padding-top:10px;border-top:1px solid #eee}
-.my-memo{font-size:13px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #eee}
 .paid-badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:bold;margin-top:10px}
 .paid-badge.paid{background:#d4edda;color:#155724}
 .paid-badge.unpaid{background:#fff3cd;color:#856404}
@@ -100,12 +99,7 @@ input:focus,textarea:focus{border-color:#4a3728}
       </div>
     </div>
     <div id="menu-area"></div>
-    <div class="memo-pad">
-      <div class="card" style="margin-top:12px">
-        <label for="memo">備考（アレルギー等）</label>
-        <textarea id="memo" rows="3" placeholder="ご要望があればご記入ください" style="resize:vertical"></textarea>
-      </div>
-    </div>
+    <div class="form-bottom-pad"></div>
   </div>
 </div>
 
@@ -128,7 +122,6 @@ input:focus,textarea:focus{border-color:#4a3728}
       <div class="my-url" id="my-url"></div>
       <div id="my-items"></div>
       <div class="my-total" id="my-total"></div>
-      <div class="my-memo" id="my-memo" style="display:none"></div>
       <div id="my-paid-badge" class="paid-badge unpaid">⏳ 未払い</div>
     </div>
     <div id="cutoff-note" class="cutoff-note" style="display:none"></div>
@@ -282,7 +275,6 @@ function getTotal(){return MENU.reduce((s,m)=>s+m.price*qty[m.id],0);}
 async function submitOrder(){
   const name=document.getElementById('name').value.trim();
   const libecity_url=document.getElementById('libecity_url').value.trim();
-  const memo=document.getElementById('memo').value.trim();
   const items=getItems();const total_price=getTotal();
   if(!name){alert('お名前を入力してください。');return;}
   if(!items.length){alert('商品を1点以上選択してください。');return;}
@@ -293,10 +285,10 @@ async function submitOrder(){
   try{
     let result;
     if(isEditing&&myOrderId){
-      const{data,error}=await sb.from('orders').update({name,libecity_url,items,total_price,memo}).eq('id',myOrderId).select().single();
+      const{data,error}=await sb.from('orders').update({name,libecity_url,items,total_price}).eq('id',myOrderId).select().single();
       if(error)throw error;result=data;
     }else{
-      const{data,error}=await sb.from('orders').insert({name,libecity_url,items,total_price,memo}).select().single();
+      const{data,error}=await sb.from('orders').insert({name,libecity_url,items,total_price}).select().single();
       if(error)throw error;result=data;
       myOrderId=result.id;localStorage.setItem('order_id',result.id);
     }
@@ -346,9 +338,6 @@ function renderMyOrder(){
   });
   document.getElementById('my-total').textContent='合計 ¥'+o.total_price.toLocaleString();
 
-  const memoEl=document.getElementById('my-memo');
-  if(o.memo){memoEl.textContent='📝 '+o.memo;memoEl.style.display='block';}
-  else{memoEl.style.display='none';}
 
   const at=new Date(o.ordered_at);
   document.getElementById('my-order-time').textContent=
@@ -382,7 +371,7 @@ function startEdit(){
   // フォームに現在の注文を復元
   document.getElementById('name').value=myOrderData.name||'';
   document.getElementById('libecity_url').value=myOrderData.libecity_url||'';
-  document.getElementById('memo').value=myOrderData.memo||'';
+
   MENU.forEach(m=>{qty[m.id]=0;document.getElementById('qty-'+m.id).textContent='0';document.getElementById('row-'+m.id).classList.remove('selected');});
   myOrderData.items.forEach(item=>{
     if(qty.hasOwnProperty(item.id)){

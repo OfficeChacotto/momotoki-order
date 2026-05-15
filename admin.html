@@ -120,7 +120,7 @@ tr.paid .order-items{color:#bbb}
   <table id="orders-table" style="display:none">
     <thead>
       <tr>
-        <th>名前 / 備考</th>
+        <th>名前</th>
         <th>注文内容</th>
         <th>合計</th>
         <th>日時</th>
@@ -143,7 +143,6 @@ tr.paid .order-items{color:#bbb}
       <div class="mf"><label>リベシティURL</label><input type="url" id="m-url"></div>
       <div id="m-menu"></div>
       <div class="modal-total-line" id="m-total">合計 ¥0</div>
-      <div class="mf" style="margin-top:14px"><label>備考</label><textarea id="m-memo" rows="3"></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
@@ -285,7 +284,6 @@ function renderTable(){
     tr.innerHTML=`
       <td>
         ${nameDisplay}
-        ${order.memo?`<div style="font-size:12px;color:#888;margin-top:3px">📝 ${esc(order.memo)}</div>`:''}
       </td>
       <td><div class="order-items">${esc(itemsText)}</div></td>
       <td class="order-total">¥${order.total_price.toLocaleString()}</td>
@@ -337,7 +335,6 @@ function openEdit(id){
   editingId=id;
   document.getElementById('m-name').value=o.name||'';
   document.getElementById('m-url').value=o.libecity_url||'';
-  document.getElementById('m-memo').value=o.memo||'';
   MENU.forEach(m=>mQtyMap[m.id]=0);
   o.items.forEach(item=>{if(mQtyMap.hasOwnProperty(item.id))mQtyMap[item.id]=item.qty;});
   buildModalMenu();updateModalTotal();
@@ -377,16 +374,15 @@ function closeModal(){document.getElementById('edit-modal').classList.remove('op
 async function saveEdit(){
   const name=document.getElementById('m-name').value.trim();
   const libecity_url=document.getElementById('m-url').value.trim();
-  const memo=document.getElementById('m-memo').value.trim();
   const items=MENU.filter(m=>mQtyMap[m.id]>0).map(m=>({id:m.id,name:m.name,price:m.price,qty:mQtyMap[m.id]}));
   const total_price=items.reduce((s,i)=>s+i.price*i.qty,0);
   if(!name){alert('お名前を入力してください。');return;}
   if(!items.length){alert('商品を1点以上選択してください。');return;}
   try{
-    const{error}=await sb.from('orders').update({name,libecity_url,items,total_price,memo}).eq('id',editingId);
+    const{error}=await sb.from('orders').update({name,libecity_url,items,total_price}).eq('id',editingId);
     if(error)throw error;
     const o=allOrders.find(o=>o.id===editingId);
-    if(o)Object.assign(o,{name,libecity_url,items,total_price,memo});
+    if(o)Object.assign(o,{name,libecity_url,items,total_price});
     closeModal();renderAll();
   }catch(e){alert('保存失敗: '+e.message);}
 }

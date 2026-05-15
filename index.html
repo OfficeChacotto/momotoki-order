@@ -9,80 +9,85 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:sans-serif;background:#faf8f5;color:#333;font-size:16px}
-header{background:#4a3728;color:#fff;padding:16px;text-align:center}
+header{background:#4a3728;color:#fff;padding:14px 16px;text-align:center}
 header h1{font-size:20px;font-weight:bold;letter-spacing:2px}
-header p{font-size:12px;margin-top:4px;opacity:.8}
+#current-time{font-size:13px;margin-top:4px;opacity:.85}
+
+/* 締め切りバナー */
+#cutoff-banner{display:none;padding:10px 16px;text-align:center;font-size:14px;font-weight:bold}
+#cutoff-banner.before{background:#fff3cd;color:#856404;border-bottom:2px solid #ffc107}
+#cutoff-banner.after{background:#fdecea;color:#c0392b;border-bottom:2px solid #e74c3c}
+
+/* 注文フォーム画面 */
+#form-screen{max-width:600px;margin:0 auto}
 .section{padding:16px}
 .card{background:#fff;border-radius:8px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px;color:#555}
-input[type=text],input[type=url],textarea{
-  width:100%;border:1px solid #ccc;border-radius:6px;padding:10px 12px;
-  font-size:16px;outline:none;transition:border .2s
-}
-input[type=text]:focus,input[type=url]:focus,textarea:focus{border-color:#4a3728}
+input[type=text],input[type=url],textarea{width:100%;border:1px solid #ccc;border-radius:6px;padding:10px 12px;font-size:16px;outline:none;transition:border .2s}
+input:focus,textarea:focus{border-color:#4a3728}
 .field{margin-bottom:14px}
-.category-title{
-  font-size:13px;font-weight:bold;color:#4a3728;
-  border-bottom:2px solid #4a3728;padding-bottom:4px;margin-bottom:10px;margin-top:18px
-}
-.menu-item{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:10px 0;border-bottom:1px solid #eee
-}
+.field:last-child{margin-bottom:0}
+.cat-title{font-size:13px;font-weight:bold;color:#4a3728;border-bottom:2px solid #4a3728;padding-bottom:4px;margin-bottom:10px;margin-top:18px}
+.menu-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee}
 .menu-item:last-child{border-bottom:none}
 .menu-info{flex:1}
 .menu-name{font-size:15px}
 .menu-price{font-size:13px;color:#777;margin-top:2px}
 .qty-ctrl{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.qty-btn{
-  width:36px;height:36px;border:none;border-radius:50%;
-  font-size:20px;line-height:1;cursor:pointer;
-  background:#e8e0d8;color:#4a3728;font-weight:bold;
-  display:flex;align-items:center;justify-content:center;
-  -webkit-tap-highlight-color:transparent
-}
+.qty-btn{width:36px;height:36px;border:none;border-radius:50%;font-size:20px;cursor:pointer;background:#e8e0d8;color:#4a3728;font-weight:bold;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .qty-btn:active{background:#c8b8a8}
 .qty-num{min-width:24px;text-align:center;font-size:16px;font-weight:bold}
 .menu-item.selected .menu-name{color:#4a3728;font-weight:bold}
 .menu-item.selected{background:#fdf5ec;margin:0 -16px;padding:10px 16px;border-radius:4px}
+.memo-pad{padding:0 0 110px}
 
-/* sticky footer */
-#order-footer{
-  position:sticky;bottom:0;background:#fff;
-  border-top:2px solid #4a3728;padding:12px 16px;
-  box-shadow:0 -2px 8px rgba(0,0,0,.1)
-}
-#footer-summary{font-size:13px;color:#555;margin-bottom:6px;min-height:20px}
+/* スティッキーフッター */
+#order-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #4a3728;padding:12px 16px;box-shadow:0 -2px 8px rgba(0,0,0,.1)}
+#footer-summary{font-size:13px;color:#555;margin-bottom:6px;min-height:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #footer-total{font-size:22px;font-weight:bold;color:#4a3728;margin-bottom:10px}
-#btn-order{
-  width:100%;padding:14px;background:#4a3728;color:#fff;
-  border:none;border-radius:8px;font-size:18px;font-weight:bold;
-  cursor:pointer;-webkit-tap-highlight-color:transparent
-}
+#btn-order{width:100%;padding:14px;background:#4a3728;color:#fff;border:none;border-radius:8px;font-size:18px;font-weight:bold;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #btn-order:active{background:#2e2018}
 #btn-order:disabled{background:#aaa;cursor:not-allowed}
 
-/* 完了画面 */
-#done-screen{display:none;padding:24px 16px;max-width:600px;margin:0 auto}
-#done-screen h2{font-size:20px;color:#4a3728;margin-bottom:16px;text-align:center}
-.done-card{background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:12px}
-.done-card h3{font-size:14px;color:#777;margin-bottom:8px}
-.done-item-row{display:flex;justify-content:space-between;padding:4px 0;font-size:15px}
-.done-total{font-size:20px;font-weight:bold;color:#4a3728;text-align:right;margin-top:8px;padding-top:8px;border-top:1px solid #eee}
-.done-time{font-size:12px;color:#999;text-align:center;margin-bottom:16px}
-#btn-edit{
-  width:100%;padding:14px;background:#fff;color:#4a3728;
-  border:2px solid #4a3728;border-radius:8px;font-size:16px;font-weight:bold;
-  cursor:pointer;margin-bottom:12px
-}
-#btn-new{
-  width:100%;padding:12px;background:#eee;color:#555;
-  border:none;border-radius:8px;font-size:14px;cursor:pointer
-}
+/* メイン画面（注文後） */
+#main-screen{display:none;max-width:600px;margin:0 auto;padding:16px}
 
-/* 注文画面 */
-#order-screen{max-width:600px;margin:0 auto}
-.memo-area{padding:0 16px 100px}
+/* 自分の注文カード */
+.my-order-card{background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;margin-bottom:16px;border:2px solid #4a3728}
+.my-order-hdr{background:#4a3728;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.my-order-hdr h2{font-size:15px}
+.my-order-body{padding:16px}
+.my-name{font-size:18px;font-weight:bold;margin-bottom:8px}
+.my-url{font-size:12px;color:#777;margin-bottom:12px;word-break:break-all}
+.my-item-row{display:flex;justify-content:space-between;padding:4px 0;font-size:15px}
+.my-total{font-size:20px;font-weight:bold;color:#4a3728;text-align:right;margin-top:10px;padding-top:10px;border-top:1px solid #eee}
+.my-memo{font-size:13px;color:#666;margin-top:8px;padding-top:8px;border-top:1px solid #eee}
+.paid-badge{display:inline-block;padding:4px 12px;border-radius:12px;font-size:13px;font-weight:bold;margin-top:10px}
+.paid-badge.paid{background:#d4edda;color:#155724}
+.paid-badge.unpaid{background:#fff3cd;color:#856404}
+.my-order-footer{padding:12px 16px;border-top:1px solid #eee;display:flex;gap:10px}
+#btn-edit{flex:1;padding:12px;background:#4a3728;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer}
+#btn-edit:disabled{background:#bbb;cursor:not-allowed}
+#btn-new{padding:12px 16px;background:#fff;color:#4a3728;border:2px solid #4a3728;border-radius:8px;font-size:14px;cursor:pointer}
+.cutoff-note{font-size:12px;color:#c0392b;text-align:center;padding:4px 16px 8px}
+
+/* 全注文一覧 */
+.all-orders-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.all-orders-hdr h3{font-size:15px;font-weight:bold;color:#4a3728}
+#btn-refresh{padding:6px 12px;background:#fff;border:1px solid #4a3728;border-radius:6px;color:#4a3728;font-size:13px;cursor:pointer}
+.order-card{background:#fff;border-radius:8px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.order-card.own{border-left:4px solid #4a3728;background:#fdf9f5}
+.oc-name{font-size:15px;font-weight:bold;margin-bottom:6px}
+.oc-items{font-size:13px;color:#555;line-height:1.7;margin-bottom:8px}
+.oc-footer{display:flex;justify-content:space-between;align-items:center}
+.oc-total{font-size:15px;font-weight:bold;color:#4a3728}
+.oc-paid{font-size:12px;font-weight:bold;padding:3px 10px;border-radius:10px}
+.oc-paid.paid{background:#d4edda;color:#155724}
+.oc-paid.unpaid{background:#fff3cd;color:#856404}
+.oc-time{font-size:11px;color:#aaa;margin-top:4px}
+
+#all-orders-loading{text-align:center;padding:20px;color:#888;font-size:14px}
+#all-orders-empty{text-align:center;padding:20px;color:#aaa;font-size:14px;display:none}
 
 @media(min-width:600px){
   #order-footer{max-width:600px;left:50%;transform:translateX(-50%);border-radius:8px 8px 0 0}
@@ -93,26 +98,26 @@ input[type=text]:focus,input[type=url]:focus,textarea:focus{border-color:#4a3728
 
 <header>
   <h1>古民家cafe 百時</h1>
-  <p>ご注文フォーム</p>
+  <div id="current-time"></div>
 </header>
 
-<!-- 注文画面 -->
-<div id="order-screen">
+<div id="cutoff-banner"></div>
+
+<!-- 注文フォーム画面 -->
+<div id="form-screen">
   <div class="section">
     <div class="card">
       <div class="field">
         <label for="name">お名前 <span style="color:#c0392b">*</span></label>
         <input type="text" id="name" placeholder="山田 太郎" autocomplete="name">
       </div>
-      <div class="field" style="margin-bottom:0">
+      <div class="field">
         <label for="libecity_url">リベシティ プロフィールURL（任意）</label>
         <input type="url" id="libecity_url" placeholder="https://libecity.com/user_profile/...">
       </div>
     </div>
-
     <div id="menu-area"></div>
-
-    <div class="memo-area" style="padding:0 0 100px">
+    <div class="memo-pad">
       <div class="card" style="margin-top:12px">
         <label for="memo">備考（アレルギー等）</label>
         <textarea id="memo" rows="3" placeholder="ご要望があればご記入ください" style="resize:vertical"></textarea>
@@ -121,287 +126,376 @@ input[type=text]:focus,input[type=url]:focus,textarea:focus{border-color:#4a3728
   </div>
 </div>
 
-<!-- スティッキーフッター -->
 <div id="order-footer">
   <div id="footer-summary">商品を選択してください</div>
   <div id="footer-total">合計 ¥0</div>
   <button id="btn-order" onclick="submitOrder()">注文する</button>
 </div>
 
-<!-- 完了画面 -->
-<div id="done-screen">
-  <h2>ご注文ありがとうございます！</h2>
-  <p class="done-time" id="done-time"></p>
-  <div class="done-card">
-    <h3>注文者</h3>
-    <div id="done-name" style="font-size:16px;font-weight:bold"></div>
-    <div id="done-url" style="font-size:13px;color:#777;margin-top:4px"></div>
+<!-- メイン画面（注文後） -->
+<div id="main-screen">
+  <!-- 自分の注文カード -->
+  <div class="my-order-card">
+    <div class="my-order-hdr">
+      <h2>あなたの注文</h2>
+      <span id="my-order-time" style="font-size:12px;opacity:.8"></span>
+    </div>
+    <div class="my-order-body">
+      <div class="my-name" id="my-name"></div>
+      <div class="my-url" id="my-url"></div>
+      <div id="my-items"></div>
+      <div class="my-total" id="my-total"></div>
+      <div class="my-memo" id="my-memo" style="display:none"></div>
+      <div id="my-paid-badge" class="paid-badge unpaid">⏳ 未払い</div>
+    </div>
+    <div id="cutoff-note" class="cutoff-note" style="display:none"></div>
+    <div class="my-order-footer">
+      <button id="btn-edit" onclick="startEdit()">✏️ 注文を変更する</button>
+      <button id="btn-new" onclick="newOrder()">新規注文</button>
+    </div>
   </div>
-  <div class="done-card">
-    <h3>注文内容</h3>
-    <div id="done-items"></div>
-    <div class="done-total" id="done-total"></div>
+
+  <!-- 全注文一覧 -->
+  <div class="all-orders-hdr">
+    <h3>全注文一覧</h3>
+    <button id="btn-refresh" onclick="refreshAllOrders()">↻ 更新</button>
   </div>
-  <div class="done-card" id="done-memo-card" style="display:none">
-    <h3>備考</h3>
-    <div id="done-memo" style="font-size:15px"></div>
-  </div>
-  <button id="btn-edit" onclick="editOrder()">注文を変更する</button>
-  <button id="btn-new" onclick="newOrder()">別の注文をする（新規）</button>
+  <div id="all-orders-loading">読み込み中...</div>
+  <div id="all-orders-empty">まだ注文はありません</div>
+  <div id="all-orders-list"></div>
 </div>
 
 <script>
-const MENU = [
-  {id:"cheesecake",    category:"フード",   name:"チーズケーキ",                          price:550},
-  {id:"blend_light",   category:"珈琲",     name:"ブレンドコーヒー（浅煎り）",            price:500},
-  {id:"blend_dark",    category:"珈琲",     name:"マイルドブレンド（深煎り）",            price:500},
-  {id:"ice_coffee",    category:"珈琲",     name:"アイスコーヒー",                        price:500},
-  {id:"decaf",         category:"珈琲",     name:"デカフェ（カフェインレス）",            price:550},
-  {id:"cafe_ole_hot",  category:"珈琲",     name:"カフェオレ（ホット）",                  price:540},
-  {id:"cafe_ole_ice",  category:"珈琲",     name:"カフェオレ（アイス）",                  price:540},
-  {id:"straight_hot",  category:"紅茶",     name:"ストレートティー（ホット）",            price:500},
-  {id:"straight_ice",  category:"紅茶",     name:"ストレートティー（アイス）",            price:500},
-  {id:"milk_tea_hot",  category:"紅茶",     name:"ミルクティー（ホット）",                price:500},
-  {id:"herb_blend",    category:"ハーブ",   name:"ブレンドハーブティー",                  price:700},
-  {id:"taneya",        category:"ハーブ",   name:"たねやブレンド",                        price:700},
-  {id:"lavender",      category:"ハーブ",   name:"ラベンダー＆レモンバーベナ",            price:700},
-  {id:"rosemary",      category:"ハーブ",   name:"ローズマリー＆スペアミント＆ジンジャー",price:700},
-  {id:"apple_juice",   category:"ジュース", name:"100%りんごジュース",                    price:500},
-  {id:"mango_juice",   category:"ジュース", name:"100%マンゴージュース",                  price:500},
-  {id:"yuzu_hot",      category:"ジュース", name:"柚子茶（ホット）",                      price:600},
-  {id:"yuzu_ice",      category:"ジュース", name:"柚子茶（アイス）",                      price:600},
-  {id:"lemonade_hot",  category:"ジュース", name:"国産檸檬のレモネード（ホット）",        price:550},
-  {id:"lemonade_soda", category:"ジュース", name:"国産檸檬のレモネード（ソーダ）",        price:600},
-  {id:"enzyme_hot",    category:"ジュース", name:"国産愛媛の酵素ドリンク（ホット）",      price:550},
-  {id:"enzyme_soda",   category:"ジュース", name:"国産愛媛の酵素ドリンク（ソーダ）",      price:600},
-  {id:"yukiko_lemon",  category:"ジュース", name:"ゆきこ檸檬ジュース（ソーダ）",          price:600},
-  {id:"soy_ole_hot",   category:"その他",   name:"豆乳オレ（ホット）",                    price:540},
-  {id:"soy_ole_ice",   category:"その他",   name:"豆乳オレ（アイス）",                    price:540},
+const MENU=[
+  {id:"cheesecake",   category:"フード",   name:"チーズケーキ",                          price:550},
+  {id:"blend_light",  category:"珈琲",     name:"ブレンドコーヒー（浅煎り）",            price:500},
+  {id:"blend_dark",   category:"珈琲",     name:"マイルドブレンド（深煎り）",            price:500},
+  {id:"ice_coffee",   category:"珈琲",     name:"アイスコーヒー",                        price:500},
+  {id:"decaf",        category:"珈琲",     name:"デカフェ（カフェインレス）",            price:550},
+  {id:"cafe_ole_hot", category:"珈琲",     name:"カフェオレ（ホット）",                  price:540},
+  {id:"cafe_ole_ice", category:"珈琲",     name:"カフェオレ（アイス）",                  price:540},
+  {id:"straight_hot", category:"紅茶",     name:"ストレートティー（ホット）",            price:500},
+  {id:"straight_ice", category:"紅茶",     name:"ストレートティー（アイス）",            price:500},
+  {id:"milk_tea_hot", category:"紅茶",     name:"ミルクティー（ホット）",                price:500},
+  {id:"herb_blend",   category:"ハーブ",   name:"ブレンドハーブティー",                  price:700},
+  {id:"taneya",       category:"ハーブ",   name:"たねやブレンド",                        price:700},
+  {id:"lavender",     category:"ハーブ",   name:"ラベンダー＆レモンバーベナ",            price:700},
+  {id:"rosemary",     category:"ハーブ",   name:"ローズマリー＆スペアミント＆ジンジャー",price:700},
+  {id:"apple_juice",  category:"ジュース", name:"100%りんごジュース",                    price:500},
+  {id:"mango_juice",  category:"ジュース", name:"100%マンゴージュース",                  price:500},
+  {id:"yuzu_hot",     category:"ジュース", name:"柚子茶（ホット）",                      price:600},
+  {id:"yuzu_ice",     category:"ジュース", name:"柚子茶（アイス）",                      price:600},
+  {id:"lemonade_hot", category:"ジュース", name:"国産檸檬のレモネード（ホット）",        price:550},
+  {id:"lemonade_soda",category:"ジュース", name:"国産檸檬のレモネード（ソーダ）",        price:600},
+  {id:"enzyme_hot",   category:"ジュース", name:"国産愛媛の酵素ドリンク（ホット）",      price:550},
+  {id:"enzyme_soda",  category:"ジュース", name:"国産愛媛の酵素ドリンク（ソーダ）",      price:600},
+  {id:"yukiko_lemon", category:"ジュース", name:"ゆきこ檸檬ジュース（ソーダ）",          price:600},
+  {id:"soy_ole_hot",  category:"その他",   name:"豆乳オレ（ホット）",                    price:540},
+  {id:"soy_ole_ice",  category:"その他",   name:"豆乳オレ（アイス）",                    price:540},
 ];
+const CATEGORIES=["フード","珈琲","紅茶","ハーブ","ジュース","その他"];
 
-const CATEGORIES = ["フード","珈琲","紅茶","ハーブ","ジュース","その他"];
+const qty={};
+MENU.forEach(m=>qty[m.id]=0);
 
-// 数量マップ
-const qty = {};
-MENU.forEach(m => qty[m.id] = 0);
-
-// Supabase クライアント
 let sb;
-try {
-  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch(e) {
-  console.error('Supabase init error', e);
+try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);}catch(e){console.error(e);}
+
+let myOrderId=null;
+let myOrderData=null;
+let cutoffISO=null;
+let isEditing=false;
+
+// ---- 時計 ----
+function startClock(){
+  function tick(){
+    const now=new Date();
+    const opts={year:'numeric',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'};
+    document.getElementById('current-time').textContent=now.toLocaleString('ja-JP',opts);
+    updateCutoffBanner();
+  }
+  tick();setInterval(tick,1000);
 }
 
-// 編集中の注文ID
-let editingOrderId = null;
+// ---- 締め切りバナー ----
+async function loadCutoff(){
+  try{
+    const{data}=await sb.from('settings').select('value').eq('key','order_cutoff').single();
+    cutoffISO=data&&data.value?data.value:null;
+  }catch(e){cutoffISO=null;}
+  updateCutoffBanner();
+  updateEditButton();
+}
+function isPastCutoff(){
+  if(!cutoffISO)return false;
+  return new Date()>new Date(cutoffISO);
+}
+function updateCutoffBanner(){
+  const banner=document.getElementById('cutoff-banner');
+  if(!cutoffISO){banner.style.display='none';return;}
+  const dtStr=new Date(cutoffISO).toLocaleString('ja-JP',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  banner.style.display='block';
+  if(isPastCutoff()){
+    banner.className='after';
+    banner.textContent='⛔ 注文変更の締め切りが過ぎました（'+dtStr+'）';
+  }else{
+    banner.className='before';
+    banner.textContent='✂️ 注文変更 締め切り: '+dtStr;
+  }
+}
+function updateEditButton(){
+  const btn=document.getElementById('btn-edit');
+  const note=document.getElementById('cutoff-note');
+  if(!btn)return;
+  if(isPastCutoff()){
+    btn.disabled=true;
+    btn.textContent='変更期限終了';
+    note.style.display='block';
+    note.textContent='変更期限が過ぎたため注文を変更できません';
+  }else{
+    btn.disabled=false;
+    btn.textContent='✏️ 注文を変更する';
+    note.style.display='none';
+  }
+}
 
-// メニューDOM構築
-function buildMenu() {
-  const area = document.getElementById('menu-area');
-  CATEGORIES.forEach(cat => {
-    const items = MENU.filter(m => m.category === cat);
-    if (!items.length) return;
-    const sec = document.createElement('div');
-    sec.className = 'card';
-    sec.innerHTML = `<div class="category-title">${cat}</div>`;
-    items.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'menu-item';
-      row.id = 'row-' + item.id;
-      row.innerHTML = `
+// ---- メニュー構築 ----
+function buildMenu(){
+  const area=document.getElementById('menu-area');
+  CATEGORIES.forEach(cat=>{
+    const items=MENU.filter(m=>m.category===cat);if(!items.length)return;
+    const sec=document.createElement('div');sec.className='card';
+    sec.innerHTML=`<div class="cat-title">${cat}</div>`;
+    items.forEach(item=>{
+      const row=document.createElement('div');
+      row.className='menu-item';row.id='row-'+item.id;
+      row.innerHTML=`
         <div class="menu-info">
           <div class="menu-name">${item.name}</div>
           <div class="menu-price">¥${item.price.toLocaleString()}</div>
         </div>
         <div class="qty-ctrl">
-          <button class="qty-btn" onclick="changeQty('${item.id}',-1)" aria-label="減らす">−</button>
+          <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
           <span class="qty-num" id="qty-${item.id}">0</span>
-          <button class="qty-btn" onclick="changeQty('${item.id}',1)" aria-label="増やす">＋</button>
+          <button class="qty-btn" onclick="changeQty('${item.id}',1)">＋</button>
         </div>`;
       sec.appendChild(row);
     });
     area.appendChild(sec);
   });
 }
-
-function changeQty(id, delta) {
-  qty[id] = Math.max(0, qty[id] + delta);
-  document.getElementById('qty-' + id).textContent = qty[id];
-  const row = document.getElementById('row-' + id);
-  row.classList.toggle('selected', qty[id] > 0);
+function changeQty(id,delta){
+  qty[id]=Math.max(0,qty[id]+delta);
+  document.getElementById('qty-'+id).textContent=qty[id];
+  document.getElementById('row-'+id).classList.toggle('selected',qty[id]>0);
   updateFooter();
 }
-
-function updateFooter() {
-  const selected = MENU.filter(m => qty[m.id] > 0);
-  const total = selected.reduce((s, m) => s + m.price * qty[m.id], 0);
-  const summaryEl = document.getElementById('footer-summary');
-  if (selected.length === 0) {
-    summaryEl.textContent = '商品を選択してください';
-  } else {
-    summaryEl.textContent = selected.map(m => `${m.name} ×${qty[m.id]}`).join('　');
-  }
-  document.getElementById('footer-total').textContent = `合計 ¥${total.toLocaleString()}`;
+function updateFooter(){
+  const sel=MENU.filter(m=>qty[m.id]>0);
+  const total=sel.reduce((s,m)=>s+m.price*qty[m.id],0);
+  const summaryEl=document.getElementById('footer-summary');
+  summaryEl.textContent=sel.length?sel.map(m=>`${m.name} ×${qty[m.id]}`).join('　'):'商品を選択してください';
+  document.getElementById('footer-total').textContent=`合計 ¥${total.toLocaleString()}`;
 }
+function getItems(){return MENU.filter(m=>qty[m.id]>0).map(m=>({id:m.id,name:m.name,price:m.price,qty:qty[m.id]}));}
+function getTotal(){return MENU.reduce((s,m)=>s+m.price*qty[m.id],0);}
 
-function getOrderItems() {
-  return MENU.filter(m => qty[m.id] > 0).map(m => ({
-    id: m.id, name: m.name, price: m.price, qty: qty[m.id]
-  }));
-}
+// ---- 注文送信 ----
+async function submitOrder(){
+  const name=document.getElementById('name').value.trim();
+  const libecity_url=document.getElementById('libecity_url').value.trim();
+  const memo=document.getElementById('memo').value.trim();
+  const items=getItems();const total_price=getTotal();
+  if(!name){alert('お名前を入力してください。');return;}
+  if(!items.length){alert('商品を1点以上選択してください。');return;}
+  if(isEditing&&isPastCutoff()){alert('変更期限が過ぎているため変更できません。');return;}
 
-function getTotalPrice() {
-  return MENU.reduce((s, m) => s + m.price * qty[m.id], 0);
-}
-
-async function submitOrder() {
-  const name = document.getElementById('name').value.trim();
-  const libecity_url = document.getElementById('libecity_url').value.trim();
-  const memo = document.getElementById('memo').value.trim();
-  const items = getOrderItems();
-  const total_price = getTotalPrice();
-
-  if (!name) { alert('お名前を入力してください。'); return; }
-  if (items.length === 0) { alert('商品を1点以上選択してください。'); return; }
-
-  const btn = document.getElementById('btn-order');
-  btn.disabled = true;
-  btn.textContent = '送信中...';
-
-  try {
+  const btn=document.getElementById('btn-order');
+  btn.disabled=true;btn.textContent='送信中...';
+  try{
     let result;
-    if (editingOrderId) {
-      // UPDATE
-      const {data, error} = await sb.from('orders').update({
-        name, libecity_url, items, total_price, memo
-      }).eq('id', editingOrderId).select().single();
-      if (error) throw error;
-      result = data;
-    } else {
-      // INSERT
-      const {data, error} = await sb.from('orders').insert({
-        name, libecity_url, items, total_price, memo
-      }).select().single();
-      if (error) throw error;
-      result = data;
-      localStorage.setItem('order_id', result.id);
+    if(isEditing&&myOrderId){
+      const{data,error}=await sb.from('orders').update({name,libecity_url,items,total_price,memo}).eq('id',myOrderId).select().single();
+      if(error)throw error;result=data;
+    }else{
+      const{data,error}=await sb.from('orders').insert({name,libecity_url,items,total_price,memo}).select().single();
+      if(error)throw error;result=data;
+      myOrderId=result.id;localStorage.setItem('order_id',result.id);
     }
-    showDone(result);
-  } catch(e) {
-    alert('送信に失敗しました。\n' + (e.message || e));
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '注文する';
+    myOrderData=result;
+    isEditing=false;
+    showMainScreen();
+  }catch(e){
+    alert('送信に失敗しました。\n'+(e.message||e));
+  }finally{
+    btn.disabled=false;btn.textContent=isEditing?'変更を保存する':'注文する';
   }
 }
 
-function showDone(order) {
-  document.getElementById('order-screen').style.display = 'none';
-  document.getElementById('order-footer').style.display = 'none';
-  const done = document.getElementById('done-screen');
-  done.style.display = 'block';
+// ---- 画面切り替え ----
+function showFormScreen(){
+  document.getElementById('form-screen').style.display='block';
+  document.getElementById('order-footer').style.display='block';
+  document.getElementById('main-screen').style.display='none';
+  window.scrollTo(0,0);
+}
+function showMainScreen(){
+  document.getElementById('form-screen').style.display='none';
+  document.getElementById('order-footer').style.display='none';
+  document.getElementById('main-screen').style.display='block';
+  renderMyOrder();
+  refreshAllOrders();
+  updateEditButton();
+  window.scrollTo(0,0);
+}
 
-  const at = new Date(order.updated_at || order.ordered_at);
-  document.getElementById('done-time').textContent =
-    `注文日時: ${at.toLocaleDateString('ja-JP')} ${at.toLocaleTimeString('ja-JP')}`;
+// ---- 自分の注文表示 ----
+function renderMyOrder(){
+  if(!myOrderData)return;
+  const o=myOrderData;
+  document.getElementById('my-name').textContent=o.name;
+  const urlEl=document.getElementById('my-url');
+  if(o.libecity_url){
+    urlEl.innerHTML=`<a href="${esc(o.libecity_url)}" target="_blank" style="color:#4a3728">${esc(o.libecity_url)}</a>`;
+  }else{urlEl.textContent='';}
 
-  document.getElementById('done-name').textContent = order.name;
-  const urlEl = document.getElementById('done-url');
-  if (order.libecity_url) {
-    urlEl.innerHTML = `<a href="${escHtml(order.libecity_url)}" target="_blank" style="color:#4a3728">${escHtml(order.libecity_url)}</a>`;
-  } else {
-    urlEl.textContent = '';
-  }
-
-  const itemsEl = document.getElementById('done-items');
-  itemsEl.innerHTML = '';
-  order.items.forEach(item => {
-    const row = document.createElement('div');
-    row.className = 'done-item-row';
-    row.innerHTML = `<span>${escHtml(item.name)} ×${item.qty}</span><span>¥${(item.price*item.qty).toLocaleString()}</span>`;
+  const itemsEl=document.getElementById('my-items');
+  itemsEl.innerHTML='';
+  o.items.forEach(item=>{
+    const row=document.createElement('div');row.className='my-item-row';
+    row.innerHTML=`<span>${esc(item.name)} ×${item.qty}</span><span>¥${(item.price*item.qty).toLocaleString()}</span>`;
     itemsEl.appendChild(row);
   });
-  document.getElementById('done-total').textContent = `合計 ¥${order.total_price.toLocaleString()}`;
+  document.getElementById('my-total').textContent='合計 ¥'+o.total_price.toLocaleString();
 
-  const memoCard = document.getElementById('done-memo-card');
-  if (order.memo) {
-    document.getElementById('done-memo').textContent = order.memo;
-    memoCard.style.display = 'block';
-  } else {
-    memoCard.style.display = 'none';
-  }
+  const memoEl=document.getElementById('my-memo');
+  if(o.memo){memoEl.textContent='📝 '+o.memo;memoEl.style.display='block';}
+  else{memoEl.style.display='none';}
 
-  editingOrderId = order.id;
-  localStorage.setItem('order_id', order.id);
+  const at=new Date(o.ordered_at);
+  document.getElementById('my-order-time').textContent=
+    `${at.getMonth()+1}/${at.getDate()} ${String(at.getHours()).padStart(2,'0')}:${String(at.getMinutes()).padStart(2,'0')}`;
+
+  updatePaidBadge(o.is_paid);
+}
+function updatePaidBadge(isPaid){
+  const badge=document.getElementById('my-paid-badge');
+  if(isPaid){badge.className='paid-badge paid';badge.textContent='✅ 支払い済み';}
+  else{badge.className='paid-badge unpaid';badge.textContent='⏳ 未払い';}
 }
 
-function editOrder() {
-  document.getElementById('done-screen').style.display = 'none';
-  document.getElementById('order-screen').style.display = 'block';
-  document.getElementById('order-footer').style.display = 'block';
-  document.getElementById('btn-order').textContent = '注文を変更する';
-  window.scrollTo(0, 0);
-}
-
-function newOrder() {
-  if (!confirm('新しい注文を作成します。現在の注文とは別の注文になります。よろしいですか？')) return;
-  editingOrderId = null;
-  localStorage.removeItem('order_id');
-  MENU.forEach(m => {
-    qty[m.id] = 0;
-    document.getElementById('qty-' + m.id).textContent = '0';
-    document.getElementById('row-' + m.id).classList.remove('selected');
-  });
-  document.getElementById('name').value = '';
-  document.getElementById('libecity_url').value = '';
-  document.getElementById('memo').value = '';
-  updateFooter();
-  document.getElementById('done-screen').style.display = 'none';
-  document.getElementById('order-screen').style.display = 'block';
-  document.getElementById('order-footer').style.display = 'block';
-  document.getElementById('btn-order').textContent = '注文する';
-  window.scrollTo(0, 0);
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-async function restorePreviousOrder() {
-  const savedId = localStorage.getItem('order_id');
-  if (!savedId || !sb) return;
-  try {
-    const {data, error} = await sb.from('orders').select('*').eq('id', savedId).single();
-    if (error || !data) return;
-    // フォームを復元
-    document.getElementById('name').value = data.name || '';
-    document.getElementById('libecity_url').value = data.libecity_url || '';
-    document.getElementById('memo').value = data.memo || '';
-    data.items.forEach(item => {
-      if (qty.hasOwnProperty(item.id)) {
-        qty[item.id] = item.qty;
-        const qEl = document.getElementById('qty-' + item.id);
-        if (qEl) qEl.textContent = item.qty;
-        const rEl = document.getElementById('row-' + item.id);
-        if (rEl && item.qty > 0) rEl.classList.add('selected');
+// ---- 全注文一覧 ----
+async function refreshAllOrders(){
+  const loadEl=document.getElementById('all-orders-loading');
+  const listEl=document.getElementById('all-orders-list');
+  const emptyEl=document.getElementById('all-orders-empty');
+  loadEl.style.display='block';listEl.innerHTML='';emptyEl.style.display='none';
+  try{
+    const{data,error}=await sb.from('orders').select('*').order('ordered_at',{ascending:false});
+    if(error)throw error;
+    const orders=data||[];
+    // 自分の最新支払い状態を同期
+    if(myOrderId){
+      const mine=orders.find(o=>o.id===myOrderId);
+      if(mine&&myOrderData){
+        myOrderData.is_paid=mine.is_paid;
+        updatePaidBadge(mine.is_paid);
       }
+    }
+    loadEl.style.display='none';
+    if(!orders.length){emptyEl.style.display='block';return;}
+    orders.forEach(o=>{
+      const isOwn=o.id===myOrderId;
+      const card=document.createElement('div');
+      card.className='order-card'+(isOwn?' own':'');
+      const itemsText=o.items.map(i=>`${i.name} ×${i.qty}`).join('　/　');
+      const at=new Date(o.ordered_at);
+      const timeStr=`${at.getMonth()+1}/${at.getDate()} ${String(at.getHours()).padStart(2,'0')}:${String(at.getMinutes()).padStart(2,'0')}`;
+      const paidCls=o.is_paid?'paid':'unpaid';
+      const paidLbl=o.is_paid?'✅ 支払い済み':'⏳ 未払い';
+      card.innerHTML=`
+        <div class="oc-name">${esc(o.name)}${isOwn?' <span style="font-size:12px;color:#4a3728;font-weight:normal">（あなた）</span>':''}</div>
+        <div class="oc-items">${esc(itemsText)}</div>
+        <div class="oc-footer">
+          <span class="oc-total">¥${o.total_price.toLocaleString()}</span>
+          <span class="oc-paid ${paidCls}">${paidLbl}</span>
+        </div>
+        <div class="oc-time">${timeStr}</div>`;
+      listEl.appendChild(card);
     });
-    updateFooter();
-    editingOrderId = savedId;
-    document.getElementById('btn-order').textContent = '注文を変更する';
-
-    const banner = document.createElement('div');
-    banner.style.cssText = 'background:#fdf5ec;border:1px solid #c8a87a;padding:10px 16px;font-size:13px;color:#4a3728;text-align:center';
-    banner.innerHTML = '前回の注文を読み込みました。変更して「注文を変更する」を押してください。';
-    document.querySelector('header').insertAdjacentElement('afterend', banner);
-  } catch(e) {
-    // 失敗しても無視
+  }catch(e){
+    loadEl.style.display='none';
+    listEl.innerHTML='<div style="color:#c0392b;font-size:13px;padding:12px">読み込みに失敗しました</div>';
   }
 }
 
-buildMenu();
-restorePreviousOrder();
+// ---- 編集・新規 ----
+function startEdit(){
+  if(isPastCutoff()){alert('変更期限が過ぎているため変更できません。');return;}
+  if(!myOrderData)return;
+  // フォームに現在の注文を復元
+  document.getElementById('name').value=myOrderData.name||'';
+  document.getElementById('libecity_url').value=myOrderData.libecity_url||'';
+  document.getElementById('memo').value=myOrderData.memo||'';
+  MENU.forEach(m=>{qty[m.id]=0;document.getElementById('qty-'+m.id).textContent='0';document.getElementById('row-'+m.id).classList.remove('selected');});
+  myOrderData.items.forEach(item=>{
+    if(qty.hasOwnProperty(item.id)){
+      qty[item.id]=item.qty;
+      document.getElementById('qty-'+item.id).textContent=item.qty;
+      if(item.qty>0)document.getElementById('row-'+item.id).classList.add('selected');
+    }
+  });
+  updateFooter();
+  isEditing=true;
+  document.getElementById('btn-order').textContent='変更を保存する';
+  showFormScreen();
+}
+function newOrder(){
+  if(!confirm('新しい注文を作成します。現在の注文とは別の注文になります。よろしいですか？'))return;
+  myOrderId=null;myOrderData=null;isEditing=false;
+  localStorage.removeItem('order_id');
+  MENU.forEach(m=>{qty[m.id]=0;const el=document.getElementById('qty-'+m.id);if(el)el.textContent='0';const rEl=document.getElementById('row-'+m.id);if(rEl)rEl.classList.remove('selected');});
+  document.getElementById('name').value='';
+  document.getElementById('libecity_url').value='';
+  document.getElementById('memo').value='';
+  updateFooter();
+  document.getElementById('btn-order').textContent='注文する';
+  showFormScreen();
+}
+
+// ---- 初期化 ----
+async function init(){
+  startClock();
+  buildMenu();
+  await loadCutoff();
+  const savedId=localStorage.getItem('order_id');
+  if(savedId&&sb){
+    try{
+      const{data,error}=await sb.from('orders').select('*').eq('id',savedId).single();
+      if(!error&&data){
+        myOrderId=savedId;myOrderData=data;
+        // フォームも復元しておく（startEdit用）
+        document.getElementById('name').value=data.name||'';
+        document.getElementById('libecity_url').value=data.libecity_url||'';
+        document.getElementById('memo').value=data.memo||'';
+        data.items.forEach(item=>{
+          if(qty.hasOwnProperty(item.id)){qty[item.id]=item.qty;}
+        });
+        updateFooter();
+        showMainScreen();
+        return;
+      }
+    }catch(e){}
+  }
+  showFormScreen();
+}
+
+function esc(s){
+  if(!s)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+init();
 </script>
 </body>
 </html>

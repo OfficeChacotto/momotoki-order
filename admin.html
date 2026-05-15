@@ -282,7 +282,7 @@ function renderTable(){
       :`<div class="order-name">${esc(order.name)}</div>`;
     const paidCls=order.is_paid?'paid-s':'unpaid';
     const paidLbl=order.is_paid
-      ?`✅ 支払い済み${order.paid_at?'<br><span style="font-size:11px">'+fmtDate(order.paid_at)+'</span>':''}`
+      ?`✅ 支払い済${order.paid_at?'<br><span style="font-size:11px">'+fmtDate(order.paid_at)+'</span>':''}`
       :'⬜ 未払い';
     const updBadge=order.updated_at&&order.updated_at!==order.ordered_at
       ?`<span class="upd-badge">更新: ${fmtDate(order.updated_at)}</span>`:'';

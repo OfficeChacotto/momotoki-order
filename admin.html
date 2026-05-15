@@ -33,17 +33,22 @@ header h1{font-size:18px;font-weight:bold}
 .del-all-btn{margin-left:auto;padding:7px 14px;background:#c0392b;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer;white-space:nowrap;flex-shrink:0}
 
 .table-wrap{overflow-x:auto;padding:12px}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:720px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:640px}
 th{background:#4a3728;color:#fff;padding:10px 12px;text-align:left;font-size:13px;font-weight:normal;white-space:nowrap}
+th:nth-child(1){width:100px}
+th:nth-child(2){min-width:260px}
+th:nth-child(3){width:72px}
+th:nth-child(4){width:68px}
+th:nth-child(5){width:118px}
 td{padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;vertical-align:top}
 tr:last-child td{border-bottom:none}
 tr.paid td{background:#f9f9f9;color:#aaa}
 .order-name{font-weight:bold;font-size:15px}
 .libe-link{color:#4a3728;font-size:12px;word-break:break-all}
-.order-items{font-size:13px;line-height:1.8;white-space:pre-wrap;color:#555}
+.order-items{font-size:13px;line-height:1.8;white-space:pre;color:#555}
 tr.paid .order-items{color:#bbb}
 .order-total{font-weight:bold;white-space:nowrap}
-.order-time{font-size:12px;color:#888;white-space:nowrap}
+.order-time{font-size:12px;color:#888;white-space:pre-line;line-height:1.6}
 .upd-badge{font-size:11px;color:#aaa;display:block;margin-top:2px}
 .action-btns{display:flex;flex-direction:column;gap:6px;min-width:110px}
 .paid-btn{padding:7px 10px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:bold;text-align:center}
@@ -395,7 +400,7 @@ function setFilter(f,btn){
 function fmtDate(iso){
   if(!iso)return'';
   const d=new Date(iso);
-  return`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return`${d.getMonth()+1}/${d.getDate()}\n${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 }
 function esc(s){
   if(!s)return'';

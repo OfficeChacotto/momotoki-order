@@ -325,6 +325,7 @@ function sortOrders(orders){
 }
 async function deleteOrder(id){
   const o=allOrders.find(o=>o.id===id);if(!o)return;
+  if(o.is_paid)return;
   if(!confirm(`「${o.name}」さんの注文を削除しますか？\nこの操作は元に戻せません。`))return;
   try{
     const{error}=await sb.from('orders').delete().eq('id',id);
@@ -347,6 +348,7 @@ async function deleteAll(){
 // ---- 編集モーダル ----
 function openEdit(id){
   const o=allOrders.find(o=>o.id===id);if(!o)return;
+  if(o.is_paid)return;
   editingId=id;
   document.getElementById('m-name').value=o.name||'';
   document.getElementById('m-url').value=o.libecity_url||'';

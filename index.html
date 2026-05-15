@@ -71,23 +71,6 @@ input:focus,textarea:focus{border-color:#4a3728}
 #btn-new{padding:12px 16px;background:#fff;color:#4a3728;border:2px solid #4a3728;border-radius:8px;font-size:14px;cursor:pointer}
 .cutoff-note{font-size:12px;color:#c0392b;text-align:center;padding:4px 16px 8px}
 
-/* 全注文一覧 */
-.all-orders-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.all-orders-hdr h3{font-size:15px;font-weight:bold;color:#4a3728}
-#btn-refresh{padding:6px 12px;background:#fff;border:1px solid #4a3728;border-radius:6px;color:#4a3728;font-size:13px;cursor:pointer}
-.order-card{background:#fff;border-radius:8px;padding:14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.order-card.own{border-left:4px solid #4a3728;background:#fdf9f5}
-.oc-name{font-size:15px;font-weight:bold;margin-bottom:6px}
-.oc-items{font-size:13px;color:#555;line-height:1.7;margin-bottom:8px}
-.oc-footer{display:flex;justify-content:space-between;align-items:center}
-.oc-total{font-size:15px;font-weight:bold;color:#4a3728}
-.oc-paid{font-size:12px;font-weight:bold;padding:3px 10px;border-radius:10px}
-.oc-paid.paid{background:#d4edda;color:#155724}
-.oc-paid.unpaid{background:#fff3cd;color:#856404}
-.oc-time{font-size:11px;color:#aaa;margin-top:4px}
-
-#all-orders-loading{text-align:center;padding:20px;color:#888;font-size:14px}
-#all-orders-empty{text-align:center;padding:20px;color:#aaa;font-size:14px;display:none}
 
 @media(min-width:600px){
   #order-footer{max-width:600px;left:50%;transform:translateX(-50%);border-radius:8px 8px 0 0}
@@ -155,14 +138,6 @@ input:focus,textarea:focus{border-color:#4a3728}
     </div>
   </div>
 
-  <!-- 全注文一覧 -->
-  <div class="all-orders-hdr">
-    <h3>全注文一覧</h3>
-    <button id="btn-refresh" onclick="refreshAllOrders()">↻ 更新</button>
-  </div>
-  <div id="all-orders-loading">読み込み中...</div>
-  <div id="all-orders-empty">まだ注文はありません</div>
-  <div id="all-orders-list"></div>
 </div>
 
 <script>
@@ -384,49 +359,17 @@ function updatePaidBadge(isPaid){
   else{badge.className='paid-badge unpaid';badge.textContent='⏳ 未払い';}
 }
 
-// ---- 全注文一覧 ----
+// ---- 自分の支払い状態を同期 ----
 async function refreshAllOrders(){
-  const loadEl=document.getElementById('all-orders-loading');
-  const listEl=document.getElementById('all-orders-list');
-  const emptyEl=document.getElementById('all-orders-empty');
-  loadEl.style.display='block';listEl.innerHTML='';emptyEl.style.display='none';
+  if(!myOrderId)return;
   try{
-    const{data,error}=await sb.from('orders').select('*').order('ordered_at',{ascending:false});
+    const{data,error}=await sb.from('orders').select('is_paid').eq('id',myOrderId).single();
     if(error)throw error;
-    const orders=data||[];
-    // 自分の最新支払い状態を同期
-    if(myOrderId){
-      const mine=orders.find(o=>o.id===myOrderId);
-      if(mine&&myOrderData){
-        myOrderData.is_paid=mine.is_paid;
-        updatePaidBadge(mine.is_paid);
-      }
+    if(data&&myOrderData){
+      myOrderData.is_paid=data.is_paid;
+      updatePaidBadge(data.is_paid);
     }
-    loadEl.style.display='none';
-    if(!orders.length){emptyEl.style.display='block';return;}
-    orders.forEach(o=>{
-      const isOwn=o.id===myOrderId;
-      const card=document.createElement('div');
-      card.className='order-card'+(isOwn?' own':'');
-      const itemsText=o.items.map(i=>`${i.name} ×${i.qty}`).join('　/　');
-      const at=new Date(o.ordered_at);
-      const timeStr=`${at.getMonth()+1}/${at.getDate()} ${String(at.getHours()).padStart(2,'0')}:${String(at.getMinutes()).padStart(2,'0')}`;
-      const paidCls=o.is_paid?'paid':'unpaid';
-      const paidLbl=o.is_paid?'✅ 支払い済み':'⏳ 未払い';
-      card.innerHTML=`
-        <div class="oc-name">${esc(o.name)}${isOwn?' <span style="font-size:12px;color:#4a3728;font-weight:normal">（あなた）</span>':''}</div>
-        <div class="oc-items">${esc(itemsText)}</div>
-        <div class="oc-footer">
-          <span class="oc-total">¥${o.total_price.toLocaleString()}</span>
-          <span class="oc-paid ${paidCls}">${paidLbl}</span>
-        </div>
-        <div class="oc-time">${timeStr}</div>`;
-      listEl.appendChild(card);
-    });
-  }catch(e){
-    loadEl.style.display='none';
-    listEl.innerHTML='<div style="color:#c0392b;font-size:13px;padding:12px">読み込みに失敗しました</div>';
-  }
+  }catch(e){}
 }
 
 // ---- 編集・新規 ----

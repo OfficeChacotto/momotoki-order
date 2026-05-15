@@ -245,9 +245,9 @@ async function loadOrders(){
   document.getElementById('orders-table').style.display='none';
   document.getElementById('empty').style.display='none';
   try{
-    const{data,error}=await sb.from('orders').select('*').order('ordered_at',{ascending:false});
+    const{data,error}=await sb.from('orders').select('*');
     if(error)throw error;
-    allOrders=data||[];
+    allOrders=sortOrders(data||[]);
     renderAll();
   }catch(e){alert('取得失敗: '+(e.message||e));}
   finally{document.getElementById('loading').style.display='none';}
@@ -305,13 +305,22 @@ function renderTable(){
 }
 async function togglePaid(id){
   const o=allOrders.find(o=>o.id===id);if(!o)return;
+  if(o.is_paid&&!confirm('未払いに戻しますか？')){return;}
   const newPaid=!o.is_paid;
   const upd={is_paid:newPaid,paid_at:newPaid?new Date().toISOString():null};
   try{
     const{error}=await sb.from('orders').update(upd).eq('id',id);
     if(error)throw error;
-    Object.assign(o,upd);renderAll();
+    Object.assign(o,upd);
+    allOrders=sortOrders(allOrders);
+    renderAll();
   }catch(e){alert('更新失敗: '+e.message);}
+}
+function sortOrders(orders){
+  return orders.slice().sort((a,b)=>{
+    if(a.is_paid!==b.is_paid)return a.is_paid?1:-1;
+    return a.name.localeCompare(b.name,'ja');
+  });
 }
 async function deleteOrder(id){
   const o=allOrders.find(o=>o.id===id);if(!o)return;

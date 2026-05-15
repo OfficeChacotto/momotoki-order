@@ -35,11 +35,12 @@ header h1{font-size:18px;font-weight:bold}
 .table-wrap{overflow-x:auto;padding:12px}
 table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);min-width:640px}
 th{background:#4a3728;color:#fff;padding:10px 12px;text-align:left;font-size:13px;font-weight:normal;white-space:nowrap}
-th:nth-child(1){width:140px}
-th:nth-child(2){min-width:260px}
-th:nth-child(3){width:72px}
-th:nth-child(4){width:68px}
-th:nth-child(5){width:80px}
+th:nth-child(1){width:36px;text-align:center}
+th:nth-child(2){width:140px}
+th:nth-child(3){min-width:260px}
+th:nth-child(4){width:72px}
+th:nth-child(5){width:68px}
+th:nth-child(6){width:80px}
 td{padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;vertical-align:top}
 tr:last-child td{border-bottom:none}
 tr.paid td{background:#f9f9f9;color:#aaa}
@@ -126,6 +127,7 @@ tr.paid .order-items{color:#bbb}
   <table id="orders-table" style="display:none">
     <thead>
       <tr>
+        <th>席</th>
         <th>名前</th>
         <th>注文内容</th>
         <th>合計</th>
@@ -145,6 +147,17 @@ tr.paid .order-items{color:#bbb}
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
+      <div class="mf"><label>席番号</label>
+        <select id="m-seat" style="width:100%;border:1px solid #ccc;border-radius:6px;padding:10px;font-size:15px">
+          <option value="">— 未設定 —</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+          <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+          <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+        </select>
+      </div>
       <div class="mf"><label>お名前</label><input type="text" id="m-name"></div>
       <div class="mf"><label>リベシティURL</label><input type="url" id="m-url"></div>
       <div id="m-menu"></div>
@@ -288,6 +301,7 @@ function renderTable(){
     const updBadge=order.updated_at&&order.updated_at!==order.ordered_at
       ?`<span class="upd-badge">更新: ${fmtDate(order.updated_at)}</span>`:'';
     tr.innerHTML=`
+      <td style="text-align:center;font-weight:bold;font-size:16px">${order.seat_no??'—'}</td>
       <td>
         ${nameDisplay}
       </td>
@@ -320,6 +334,8 @@ async function togglePaid(id){
 function sortOrders(orders){
   return orders.slice().sort((a,b)=>{
     if(a.is_paid!==b.is_paid)return a.is_paid?1:-1;
+    const sa=a.seat_no??999,sb_=b.seat_no??999;
+    if(sa!==sb_)return sa-sb_;
     return a.name.localeCompare(b.name,'ja');
   });
 }
@@ -350,6 +366,7 @@ function openEdit(id){
   const o=allOrders.find(o=>o.id===id);if(!o)return;
   if(o.is_paid)return;
   editingId=id;
+  document.getElementById('m-seat').value=o.seat_no||'';
   document.getElementById('m-name').value=o.name||'';
   document.getElementById('m-url').value=o.libecity_url||'';
   MENU.forEach(m=>mQtyMap[m.id]=0);
@@ -389,6 +406,8 @@ function updateModalTotal(){
 }
 function closeModal(){document.getElementById('edit-modal').classList.remove('open');editingId=null;}
 async function saveEdit(){
+  const seat_val=document.getElementById('m-seat').value;
+  const seat_no=seat_val?parseInt(seat_val):null;
   const name=document.getElementById('m-name').value.trim();
   const libecity_url=document.getElementById('m-url').value.trim();
   const items=MENU.filter(m=>mQtyMap[m.id]>0).map(m=>({id:m.id,name:m.name,price:m.price,qty:mQtyMap[m.id]}));
@@ -396,10 +415,10 @@ async function saveEdit(){
   if(!name){alert('お名前を入力してください。');return;}
   if(!items.length){alert('商品を1点以上選択してください。');return;}
   try{
-    const{error}=await sb.from('orders').update({name,libecity_url,items,total_price}).eq('id',editingId);
+    const{error}=await sb.from('orders').update({name,libecity_url,items,total_price,seat_no}).eq('id',editingId);
     if(error)throw error;
     const o=allOrders.find(o=>o.id===editingId);
-    if(o)Object.assign(o,{name,libecity_url,items,total_price});
+    if(o)Object.assign(o,{name,libecity_url,items,total_price,seat_no});
     closeModal();renderAll();
   }catch(e){alert('保存失敗: '+e.message);}
 }

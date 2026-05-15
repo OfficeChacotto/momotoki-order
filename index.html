@@ -393,7 +393,6 @@ function newOrder(){
   MENU.forEach(m=>{qty[m.id]=0;const el=document.getElementById('qty-'+m.id);if(el)el.textContent='0';const rEl=document.getElementById('row-'+m.id);if(rEl)rEl.classList.remove('selected');});
   document.getElementById('name').value='';
   document.getElementById('libecity_url').value='';
-  document.getElementById('memo').value='';
   updateFooter();
   document.getElementById('btn-order').textContent='注文する';
   showFormScreen();
@@ -413,7 +412,6 @@ async function init(){
         // フォームも復元しておく（startEdit用）
         document.getElementById('name').value=data.name||'';
         document.getElementById('libecity_url').value=data.libecity_url||'';
-        document.getElementById('memo').value=data.memo||'';
         data.items.forEach(item=>{
           if(qty.hasOwnProperty(item.id)){qty[item.id]=item.qty;}
         });
